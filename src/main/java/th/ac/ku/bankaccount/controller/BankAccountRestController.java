@@ -37,12 +37,27 @@ public class BankAccountRestController {
         return repository.findById(bankAccount.getId()).get();
     }
 
-    @PutMapping("/{id}")
-    public BankAccount update(@PathVariable int id,
-                              @RequestBody BankAccount bankAccount) {
+    @PostMapping("transaction/{id}")
+    public BankAccount makeTransaction(@PathVariable int id,
+                              @RequestBody th.ac.ku.atm.model.Transaction transaction) {
         BankAccount record = repository.findById(id).get();
-        record.setBalance(bankAccount.getBalance());
+
+        switch (transaction.getTransactiontype().toLowerCase()) {
+            case "deposit": {
+                record.deposit(transaction.getAmount());
+                break;
+            }
+            case "withdraw": {
+                record.withdraw(transaction.getAmount());
+                break;
+            }
+            default: {
+                throw new Error("cannot make transaction");
+            }
+        }
+
         repository.save(record);
+
         return record;
     }
 
